@@ -6,3 +6,6 @@ service GameService {
   entity FavoriteGame   as projection on my.FavoriteGame;
 
 }
+
+// Draft maakt Student (en via de compositie ook FavoriteGame) editeerbaar in Fiori Elements
+annotate GameService.Student with @odata.draft.enabled;

@@ -1,13 +1,18 @@
 ### Get top 10 games
 GET http://localhost:4004/odata/v4/game/Game?$top=10
 
-### Get All Students
-GET http://localhost:4004/odata/v4/game/Student
+### Get All Students (actieve versies)
+GET http://localhost:4004/odata/v4/game/Student?$filter=IsActiveEntity eq true
 
 ### Get a student with their favorite games
-GET http://localhost:4004/odata/v4/game/Student(fe56efd2-85a2-4928-8127-af094a6d4653)?$expand=to_favos($expand=to_game)
+GET http://localhost:4004/odata/v4/game/Student(Student_ID=fe56efd2-85a2-4928-8127-af094a6d4653,IsActiveEntity=true)?$expand=to_favos($expand=to_game)
 
-### Create a new student
+# -----------------------------------------------------------------------------
+# Student is draft-enabled: wijzigen gebeurt via een draft (zoals de Fiori app doet)
+# -----------------------------------------------------------------------------
+
+### 1. Create a new student (maakt een draft aan)
+# @name newStudent
 POST http://localhost:4004/odata/v4/game/Student
 Content-Type: application/json
 
@@ -16,34 +21,43 @@ Content-Type: application/json
   "Last_name": "Doe"
 }
 
-### Create a new favorite game for a student
-POST http://localhost:4004/odata/v4/game/FavoriteGame
+### 2. Add a favorite game to the draft
+POST http://localhost:4004/odata/v4/game/Student(Student_ID={{newStudent.response.body.Student_ID}},IsActiveEntity=false)/to_favos
 Content-Type: application/json
 
 {
-  "Game_ID": 1,
-  "Student_ID": "4750d5e1-d661-42cf-a6fb-5d5f14da9d02"
+  "Game_ID": 1
 }
 
-### Update a student with their favorite games
-PATCH http://localhost:4004/odata/v4/game/Student(fe56efd2-85a2-4928-8127-af094a6d4653)
+### 3. Activate (save) the draft
+POST http://localhost:4004/odata/v4/game/Student(Student_ID={{newStudent.response.body.Student_ID}},IsActiveEntity=false)/GameService.draftActivate
+Content-Type: application/json
+
+{}
+
+### Edit an existing student: start een draft
+POST http://localhost:4004/odata/v4/game/Student(Student_ID=fe56efd2-85a2-4928-8127-af094a6d4653,IsActiveEntity=true)/GameService.draftEdit
+Content-Type: application/json
+
+{ "PreserveChanges": true }
+
+### Patch the draft
+PATCH http://localhost:4004/odata/v4/game/Student(Student_ID=fe56efd2-85a2-4928-8127-af094a6d4653,IsActiveEntity=false)
 Content-Type: application/json
 
 {
   "First_name": "Tom2",
-  "Last_name": "Antjon2",
-  "to_favos": [
-    {
-      "Game_ID": 1,
-      "Student_ID": "fe56efd2-85a2-4928-8127-af094a6d4653"
-    },
-    {
-      "Game_ID": 2,
-      "Student_ID": "fe56efd2-85a2-4928-8127-af094a6d4653"
-    }
-  ]
+  "Last_name": "Antjon2"
 }
 
-### Try to delete a game
-DELETE http://localhost:4004/odata/v4/game/Game(1)
+### Activate the edited draft
+POST http://localhost:4004/odata/v4/game/Student(Student_ID=fe56efd2-85a2-4928-8127-af094a6d4653,IsActiveEntity=false)/GameService.draftActivate
+Content-Type: application/json
 
+{}
+
+### Delete a student
+DELETE http://localhost:4004/odata/v4/game/Student(Student_ID=450fed61-a0d0-43d8-ab8c-ae394a78b476,IsActiveEntity=true)
+
+### Try to delete a game (read-only -> 405)
+DELETE http://localhost:4004/odata/v4/game/Game(1)

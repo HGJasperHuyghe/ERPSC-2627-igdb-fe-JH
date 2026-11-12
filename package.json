@@ -1,19 +1,26 @@
 {
   "name": "cap-igdb",
   "version": "1.0.0",
-  "description": "A simple CAP project.",
-  "repository": "<Add your repository here>",
+  "description": "Fiori Elements app (List Report + Object Page) bovenop de CAP IGDB back-end",
+  "repository": "https://github.com/HGJasperHuyghe/ERPSC-2627-igdb-fe-JH",
   "license": "UNLICENSED",
   "private": true,
   "dependencies": {
-    "@sap/cds": "^8",
+    "@sap/cds": "^9",
     "express": "^4"
   },
   "devDependencies": {
-    "@cap-js/sqlite": "^1",
-    "@cap-js/cds-types": "^0.6"
+    "@cap-js/cds-types": "^0.14",
+    "@cap-js/sqlite": "^2",
+    "@sap/cds-dk": "^9",
+    "cds-plugin-ui5": "^0.17"
   },
   "scripts": {
-    "start": "cds-serve"
-  }
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "watch-students": "cds watch --open igdb.students/index.html"
+  },
+  "workspaces": [
+    "app/*"
+  ]
 }
